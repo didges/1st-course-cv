@@ -30,7 +30,6 @@ void read_text(text *my_text){
     int logic = 1;
     while(current_symb != '\n'){
         current_symb = getwchar();
-        
         if(logic){
             if(my_text->size_of_txt == my_text->count_of_sent){
                 my_text->size_of_txt *= 2;
@@ -45,23 +44,27 @@ void read_text(text *my_text){
             my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb = 0;
             my_text->arr_of_sent[my_text->count_of_sent]->size_of_word = 100;
             my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words] = malloc(my_text->arr_of_sent[my_text->count_of_sent]->size_of_word * sizeof(wchar_t));
-
+            if(my_text->arr_of_sent[my_text->count_of_sent]->count_of_words == 0 &&( current_symb == ' ' || current_symb == '\t'))
+                continue;
         }
         
         if(current_symb == '.'){
-           // my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = current_symb;
+            my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = current_symb;
             logic = 1;
-            my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = '\0';
+            my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb + 1] = '\0';
             my_text->count_of_sent += 1;
             continue;
         }
         
-        if(current_symb == ' '){
+        if(current_symb == ' ' || current_symb == ','){
+            if(my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb == 0)
+                continue;
             if(my_text->arr_of_sent[my_text->count_of_sent]->size_of_snt = my_text->arr_of_sent[my_text->count_of_sent]->count_of_words){
                 my_text->arr_of_sent[my_text->count_of_sent]->size_of_snt *= 2;
                 my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words = realloc(my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words, my_text->arr_of_sent[my_text->count_of_sent]->size_of_snt * sizeof(wchar_t *));
             }
-            my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = '\0';
+            my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = current_symb;
+            my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb+1] = '\0';
             my_text->arr_of_sent[my_text->count_of_sent]->count_of_words += 1;
             my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb = 0;
 
@@ -87,9 +90,9 @@ int main(){
     text my_text;
     read_text(&my_text);
     for(int i=0;i <= my_text.count_of_sent; i++){
-        for(int j=0;j<= my_text.arr_of_sent[i]->count_of_words;j++)
+        for(int j=0;j<= my_text.arr_of_sent[i]->count_of_words;j++){
             wprintf(L"%ls ", my_text.arr_of_sent[i]->arr_of_words[j]);
-        //puts("\n");
+        }
     }
     return 0;
 }
