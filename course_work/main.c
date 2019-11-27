@@ -23,7 +23,7 @@ typedef struct Sentence sentence;
 
 
 void read_text(text *my_text){
-    FILE *f = fopen("text.txt", "r");
+    FILE *f = fopen("test.txt", "r");
     my_text->size_of_txt = 20;
     my_text->arr_of_sent = malloc(my_text->size_of_txt * sizeof(sentence*));
     my_text->count_of_sent = 0;
@@ -85,9 +85,53 @@ void read_text(text *my_text){
         my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = current_symb;
         my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb += 1;
 
-    }
+    } my_text->count_of_sent -= 1;
     
 }
+
+void deleter(text *my_text)
+{
+    for(int main_sent = 0; main_sent <= my_text->count_of_sent; main_sent++)
+    {
+        for(int sent = main_sent + 1; sent <= my_text->count_of_sent; sent++)
+        {
+            int logic = 1;
+            for(int word = 0; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+            {
+                for (int symb = 0; symb < wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]); symb++)
+                {
+                    if (my_text->arr_of_sent[main_sent]->count_of_words == my_text->arr_of_sent[sent]->count_of_words)
+                    {
+                        if (wcslen(my_text->arr_of_sent[main_sent]->arr_of_words[word]) == wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]))
+                        {
+                            if (my_text->arr_of_sent[main_sent]->arr_of_words[word][symb] == my_text->arr_of_sent[sent]->arr_of_words[word][symb])
+                            {
+                                continue;
+                            } else logic = 0;
+                        } else logic = 0;                        
+                    } else logic = 0;                    
+                }                
+            }
+
+            if(logic == 1)
+            {
+                for(int word = 0; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+                {
+                    free(my_text->arr_of_sent[sent]->arr_of_words[word]);
+                }free(my_text->arr_of_sent[sent]);
+
+                for(int k = sent; k <= my_text->count_of_sent; k++)
+                {
+                    my_text->arr_of_sent[k] = my_text->arr_of_sent[k+1];
+                }     
+                sent--;
+                my_text->count_of_sent -= 1;
+            }
+        }
+    }
+}
+
+
 
 void printer(text my_text)
 {
@@ -102,6 +146,7 @@ int main(){
     setlocale(LC_ALL,"");
     text my_text;
     read_text(&my_text);
+    deleter(&my_text);
     printer(my_text);
     return 0;
 }
