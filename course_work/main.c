@@ -98,7 +98,8 @@ void read_text(text *my_text)
         my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb += 1;
 
     } my_text->count_of_sent -= 1;
-    
+
+    fclose(f);    
 }
 
 void deleter(text *my_text)
@@ -196,11 +197,83 @@ void fst_func(text *my_text)
 }
 
 
+void scnd_func(text *my_text)
+{
+    for(int sent = 0; sent <= my_text->count_of_sent; sent++)
+    {
+        int logic = 1;
+        for(int word = 0; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+        {
+            if (iswupper(my_text->arr_of_sent[sent]->arr_of_words[word][0]))
+            {
+                continue;                  
+            } else logic = 0;                                  
+        }
+
+        if(logic == 1)
+        {
+            for(int word = 0; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+            {
+                free(my_text->arr_of_sent[sent]->arr_of_words[word]);
+            }free(my_text->arr_of_sent[sent]);
+
+            for(int k = sent; k <= my_text->count_of_sent; k++)
+            {
+                my_text->arr_of_sent[k] = my_text->arr_of_sent[k+1];
+            }     
+            sent--;
+            my_text->count_of_sent -= 1;
+        }
+    }
+}
+
+
+int count_of_vowel(wchar_t* word)
+{
+    wchar_t vowel[] = {'A','E','I','O','U','Y',L'А',L'Е',L'Ё',L'И',L'О',L'У',L'Ы',L'Э',L'Ю',L'Я'};
+    int counter = 0;
+    for(int symb = 0; symb <= wcslen(word); symb++)
+    {
+        for(int symb_vowel = 0; symb_vowel  < wcslen(vowel); symb_vowel++)
+        {
+            if(towupper(word[symb]) == vowel[symb_vowel])
+            {
+                counter += 1;
+            }
+        }
+    }
+    return counter;
+}
+
+void thrd_func(text *my_text)
+{
+    int vowel_1 = 0, vowel_2 = 0; 
+    for(int sent = 0; sent <= my_text->count_of_sent; sent++)
+    {
+        for(int i = 0; i <= my_text->arr_of_sent[sent]->count_of_words; i++)
+        {
+            for (int j = 0; j <= my_text->arr_of_sent[sent]->count_of_words - i - 1; j++)
+            {
+                if(count_of_vowel(my_text->arr_of_sent[sent]->arr_of_words[j]) > count_of_vowel(my_text->arr_of_sent[sent]->arr_of_words[j+1]))
+                {
+                    wchar_t *temp = my_text->arr_of_sent[sent]->arr_of_words[j];
+                    my_text->arr_of_sent[sent]->arr_of_words[j] = my_text->arr_of_sent[sent]->arr_of_words[j+1];
+                    my_text->arr_of_sent[sent]->arr_of_words[j+1] = temp;
+                }
+            }
+            
+        }
+    }
+}
+
+
+
 void printer(text my_text)
 {
     for(int i=0;i <= my_text.count_of_sent; i++)
         for(int j=0;j<= my_text.arr_of_sent[i]->count_of_words;j++)
             wprintf(L"%ls ", my_text.arr_of_sent[i]->arr_of_words[j]);
+        
 }
 
 
@@ -208,8 +281,10 @@ int main(){
     setlocale(LC_ALL,"");
     text my_text;
     read_text(&my_text);
-    //deleter(&my_text);
-    fst_func(&my_text);
-    //printer(my_text);
+    deleter(&my_text);
+    //fst_func(&my_text);
+    //scnd_func(&my_text);
+    //thrd_func(&my_text);
+    printer(my_text);
     return 0;
 }
