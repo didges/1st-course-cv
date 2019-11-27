@@ -2,19 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <wctype.h>
 #include <locale.h>
 
-struct Text{
+struct Text
+{
     int count_of_sent;
     int size_of_txt;
     struct Sentence **arr_of_sent;
 };
 
-struct Sentence{
+struct Sentence
+{
     int count_of_symb;
     int count_of_words;
     int size_of_snt;
     int size_of_word;
+    wchar_t *mask;
     wchar_t **arr_of_words;
 };
 
@@ -22,17 +26,21 @@ typedef struct Text text;
 typedef struct Sentence sentence;
 
 
-void read_text(text *my_text){
+void read_text(text *my_text)
+{
     FILE *f = fopen("test.txt", "r");
     my_text->size_of_txt = 20;
     my_text->arr_of_sent = malloc(my_text->size_of_txt * sizeof(sentence*));
     my_text->count_of_sent = 0;
     wchar_t current_symb;
     int logic = 1;
-    while(current_symb != '\n'){
+    while(current_symb != '\n')
+    {
         current_symb = fgetwc(f);
-        if(logic){
-            if(my_text->size_of_txt == my_text->count_of_sent){
+        if(logic)
+        {
+            if(my_text->size_of_txt == my_text->count_of_sent)
+            {
                 my_text->size_of_txt += 2;
                 my_text->arr_of_sent = realloc(my_text->arr_of_sent, sizeof(sentence*) * my_text->size_of_txt);
             }
@@ -49,7 +57,8 @@ void read_text(text *my_text){
                 continue;
         }
         
-        if(current_symb == '.'){
+        if(current_symb == '.')
+        {
             my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = current_symb;
             logic = 1;
             my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb + 1] = '\0';
@@ -57,10 +66,12 @@ void read_text(text *my_text){
             continue;
         }
         
-        if(current_symb == ' ' || current_symb == ','){
+        if(current_symb == ' ' || current_symb == ',')
+        {
             if(my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb == 0)
                 continue;
-            if(my_text->arr_of_sent[my_text->count_of_sent]->size_of_snt == my_text->arr_of_sent[my_text->count_of_sent]->count_of_words){
+            if(my_text->arr_of_sent[my_text->count_of_sent]->size_of_snt == my_text->arr_of_sent[my_text->count_of_sent]->count_of_words)
+            {
                 my_text->arr_of_sent[my_text->count_of_sent]->size_of_snt += 2;
                 my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words = realloc(my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words, my_text->arr_of_sent[my_text->count_of_sent]->size_of_snt * sizeof(wchar_t *));
             }
@@ -78,7 +89,8 @@ void read_text(text *my_text){
             continue;
         }
         
-        if(my_text->arr_of_sent[my_text->count_of_sent]->size_of_word == my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb){
+        if(my_text->arr_of_sent[my_text->count_of_sent]->size_of_word == my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb)
+        {
             my_text->arr_of_sent[my_text->count_of_sent]->size_of_word *= 2;
             my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words] = realloc(my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words], my_text->arr_of_sent[my_text->count_of_sent]->size_of_word * sizeof(wchar_t));
         }
@@ -104,7 +116,7 @@ void deleter(text *my_text)
                     {
                         if (wcslen(my_text->arr_of_sent[main_sent]->arr_of_words[word]) == wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]))
                         {
-                            if (my_text->arr_of_sent[main_sent]->arr_of_words[word][symb] == my_text->arr_of_sent[sent]->arr_of_words[word][symb])
+                            if (towupper(my_text->arr_of_sent[main_sent]->arr_of_words[word][symb]) == towupper(my_text->arr_of_sent[sent]->arr_of_words[word][symb]))
                             {
                                 continue;
                             } else logic = 0;
@@ -132,6 +144,57 @@ void deleter(text *my_text)
 }
 
 
+void fst_func(text *my_text)
+{
+    for(int sent = 0; sent <= my_text->count_of_sent; sent++)
+    {
+        int count = 0;
+        int max_len_word = wcslen(my_text->arr_of_sent[sent]->arr_of_words[0]);
+        
+        for(int word = 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+        {
+            if(wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]) > wcslen(my_text->arr_of_sent[sent]->arr_of_words[word - 1]))
+            {
+                max_len_word = wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]);
+            }
+        }
+        my_text->arr_of_sent[sent]->mask = calloc(max_len_word+1, sizeof(wchar_t));
+        
+        for(int symb = 0; symb < max_len_word; symb++)
+        {
+            wchar_t temp;
+            for(int word = 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+            {
+                if (my_text->arr_of_sent[sent]->arr_of_words[word][symb] == my_text->arr_of_sent[sent]->arr_of_words[word - 1][symb])
+                {
+                    temp = my_text->arr_of_sent[sent]->arr_of_words[word][symb];
+                }
+                else
+                {
+                    temp = '?';
+                    break;
+                }
+            }
+            my_text->arr_of_sent[sent]->mask[count++] = temp;
+            
+        }
+        for (int i = wcslen(my_text->arr_of_sent[sent]->mask)-1; i > 0; i--)
+        {
+            if(my_text->arr_of_sent[sent]->mask[i] == my_text->arr_of_sent[sent]->mask[i-1] && my_text->arr_of_sent[sent]->mask[i] == '?')
+            {
+                my_text->arr_of_sent[sent]->mask[i] = '\0';
+            }
+            else {break;}
+        }
+        if (wcslen(my_text->arr_of_sent[sent]->mask) != max_len_word)
+        {
+            my_text->arr_of_sent[sent]->mask[wcslen(my_text->arr_of_sent[sent]->mask)] = '*';
+        }
+        
+        wprintf(L"В [%d] предложение строкой образцом является: %ls\n", sent+1, my_text->arr_of_sent[sent]->mask);
+    }
+}
+
 
 void printer(text my_text)
 {
@@ -141,12 +204,12 @@ void printer(text my_text)
 }
 
 
-
 int main(){
     setlocale(LC_ALL,"");
     text my_text;
     read_text(&my_text);
-    deleter(&my_text);
-    printer(my_text);
+    //deleter(&my_text);
+    fst_func(&my_text);
+    //printer(my_text);
     return 0;
 }
