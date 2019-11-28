@@ -18,6 +18,7 @@ struct Sentence
     int count_of_words;
     int size_of_snt;
     int size_of_word;
+    int same_words;
     wchar_t *mask;
     wchar_t **arr_of_words;
 };
@@ -192,7 +193,7 @@ void fst_func(text *my_text)
             my_text->arr_of_sent[sent]->mask[wcslen(my_text->arr_of_sent[sent]->mask)] = '*';
         }
         
-        wprintf(L"В [%d] предложение строкой образцом является: %ls\n", sent+1, my_text->arr_of_sent[sent]->mask);
+        wprintf(L"In [%d] sentence sample string is: %ls\n", sent+1, my_text->arr_of_sent[sent]->mask);
     }
 }
 
@@ -266,14 +267,59 @@ void thrd_func(text *my_text)
     }
 }
 
-
-
-void printer(text my_text)
+void fth_func(text *my_text)
 {
-    for(int i=0;i <= my_text.count_of_sent; i++)
-        for(int j=0;j<= my_text.arr_of_sent[i]->count_of_words;j++)
-            wprintf(L"%ls ", my_text.arr_of_sent[i]->arr_of_words[j]);
-        
+    int total = 0;
+    int count_of_same = 0;
+    int logic;
+    for(int sent = 0; sent <= my_text->count_of_sent; sent++)
+    {
+        total = 0;
+        for(int main_word = 0; main_word <= my_text->arr_of_sent[sent]->count_of_words; main_word++)
+        {
+            count_of_same = 1;
+            for(int word = main_word + 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+            {
+                logic = 1;
+                if(wcslen(my_text->arr_of_sent[sent]->arr_of_words[main_word]) == wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]))
+                {
+                    for (int symb = 0; symb < wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]); symb++)
+                    {
+                        if(my_text->arr_of_sent[sent]->arr_of_words[main_word][symb] != my_text->arr_of_sent[sent]->arr_of_words[word][symb])
+                        {
+                            logic = 0;
+                        }
+                    } 
+                } else logic = 0;
+
+                if(logic == 1)
+                {
+                    count_of_same++;
+                }
+            }
+            if(count_of_same != 1)
+            {
+                total += count_of_same;
+            }
+        }
+        my_text->arr_of_sent[sent]->same_words = total;
+        wprintf(L"In [%d] sentence count of same word: %d\n", sent+1, my_text->arr_of_sent[sent]->same_words);
+    }
+}
+
+
+
+void printer(text *my_text)
+{
+    for(int i=0;i <= my_text->count_of_sent; i++)
+    {
+        wprintf(L"[%d] sentence: ", i+1);
+        for(int j=0;j <= my_text->arr_of_sent[i]->count_of_words;j++)
+        {
+            wprintf(L"%ls ", my_text->arr_of_sent[i]->arr_of_words[j]);
+        }
+            wprintf(L"\n");
+    }
 }
 
 
@@ -282,9 +328,10 @@ int main(){
     text my_text;
     read_text(&my_text);
     deleter(&my_text);
-    //fst_func(&my_text);
+    fst_func(&my_text);
     //scnd_func(&my_text);
     //thrd_func(&my_text);
-    printer(my_text);
+    //fth_func(&my_text);
+    //printer(&my_text);
     return 0;
 }
