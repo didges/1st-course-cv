@@ -6,7 +6,7 @@ int main(){
     text my_text;
     read_text(&my_text);
     deleter(&my_text);
-    int stop = 0, mod;
+    int stop = 0, mod, temp = -1;
     while (!stop)
     {
         wprintf(L"-----------------------------------------------------------------------------------------------\n");
@@ -17,7 +17,11 @@ int main(){
         wprintf(L"\tPress 4 to print the number of identical words in a sentence\n");
         wprintf(L"\tPress 5 to finish the program\n");
         wprintf(L"-----------------------------------------------------------------------------------------------\n");
-        scanf("%d", &mod);
+        temp = scanf("%d", &mod);
+        if(temp != 1 || mod > 5 || mod < 0)
+        {
+            break;
+        }
         switch (mod)
         {
         case 0:
@@ -45,8 +49,8 @@ int main(){
         case 5:
             wprintf(L"Bye!\n");
             stop = 1;
-        }
 
+        }
     }
     
     return 0;
