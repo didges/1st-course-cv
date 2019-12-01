@@ -47,6 +47,14 @@ int main(){
             break;
         
         case 5:
+            for(int sent = 0; sent < my_text.count_of_sent; sent++)
+            {
+                for (int word = 0; word < my_text.arr_of_sent[sent]->count_of_words; word++)
+                {
+                    free(my_text.arr_of_sent[sent]->arr_of_words[word]);
+                }free(my_text.arr_of_sent[sent]);
+            }free(my_text.arr_of_sent);
+            
             wprintf(L"Bye!\n");
             stop = 1;
 

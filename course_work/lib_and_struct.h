@@ -20,6 +20,7 @@ struct Sentence
     int size_of_snt;
     int size_of_word;
     int same_words;
+    int max_len_word;
     wchar_t *mask;
     wchar_t **arr_of_words;
 };

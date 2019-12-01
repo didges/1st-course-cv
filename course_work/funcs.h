@@ -9,6 +9,8 @@ void scnd_func(text *my_text);
 
 int count_of_vowel(wchar_t* word);
 
+int compar(const void *a, const void *b);
+
 void thrd_func(text *my_text);
 
 void fth_func(text *my_text);

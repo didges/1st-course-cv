@@ -48,18 +48,9 @@ void fst_func(text *my_text)
     for(int sent = 0; sent <= my_text->count_of_sent; sent++)
     {
         int count = 0;
-        int max_len_word = wcslen(my_text->arr_of_sent[sent]->arr_of_words[0]);
+        my_text->arr_of_sent[sent]->mask = calloc(my_text->arr_of_sent[sent]->max_len_word + 1, sizeof(wchar_t));
         
-        for(int word = 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
-        {
-            if(wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]) > wcslen(my_text->arr_of_sent[sent]->arr_of_words[word - 1]))
-            {
-                max_len_word = wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]);
-            }
-        }
-        my_text->arr_of_sent[sent]->mask = calloc(max_len_word+1, sizeof(wchar_t));
-        
-        for(int symb = 0; symb < max_len_word; symb++)
+        for(int symb = 0; symb < my_text->arr_of_sent[sent]->max_len_word; symb++)
         {
             wchar_t temp;
             for(int word = 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
@@ -85,7 +76,7 @@ void fst_func(text *my_text)
             }
             else {break;}
         }
-        if (wcslen(my_text->arr_of_sent[sent]->mask) != max_len_word)
+        if (wcslen(my_text->arr_of_sent[sent]->mask) != my_text->arr_of_sent[sent]->max_len_word)
         {
             my_text->arr_of_sent[sent]->mask[wcslen(my_text->arr_of_sent[sent]->mask)] = '*';
         }
@@ -141,24 +132,22 @@ int count_of_vowel(wchar_t* word)
     return counter;
 }
 
+int compar(const void *a, const void *b)
+{
+    if(count_of_vowel(*(wchar_t**)a) > count_of_vowel(*(wchar_t**)b))
+        return 1;
+    if(count_of_vowel(*(wchar_t**)a) < count_of_vowel(*(wchar_t**)b))
+        return -1;
+    else
+        return 0;
+}
+
 void thrd_func(text *my_text)
 {
     int vowel_1 = 0, vowel_2 = 0; 
     for(int sent = 0; sent <= my_text->count_of_sent; sent++)
     {
-        for(int i = 0; i <= my_text->arr_of_sent[sent]->count_of_words; i++)
-        {
-            for (int j = 0; j <= my_text->arr_of_sent[sent]->count_of_words - i - 1; j++)
-            {
-                if(count_of_vowel(my_text->arr_of_sent[sent]->arr_of_words[j]) > count_of_vowel(my_text->arr_of_sent[sent]->arr_of_words[j+1]))
-                {
-                    wchar_t *temp = my_text->arr_of_sent[sent]->arr_of_words[j];
-                    my_text->arr_of_sent[sent]->arr_of_words[j] = my_text->arr_of_sent[sent]->arr_of_words[j+1];
-                    my_text->arr_of_sent[sent]->arr_of_words[j+1] = temp;
-                }
-            }
-            
-        }
+        qsort(my_text->arr_of_sent[sent]->arr_of_words, my_text->arr_of_sent[sent]->count_of_words, my_text->arr_of_sent[sent]->max_len_word, compar);
     }
 }
 
@@ -176,16 +165,10 @@ void fth_func(text *my_text)
             for(int word = main_word + 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
             {
                 logic = 1;
-                if(wcslen(my_text->arr_of_sent[sent]->arr_of_words[main_word]) == wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]))
+                if(wcscmp(my_text->arr_of_sent[sent]->arr_of_words[main_word], my_text->arr_of_sent[sent]->arr_of_words[word]) != 0)
                 {
-                    for (int symb = 0; symb < wcslen(my_text->arr_of_sent[sent]->arr_of_words[word]); symb++)
-                    {
-                        if(my_text->arr_of_sent[sent]->arr_of_words[main_word][symb] != my_text->arr_of_sent[sent]->arr_of_words[word][symb])
-                        {
-                            logic = 0;
-                        }
-                    } 
-                } else logic = 0;
+                    logic = 0;
+                }
 
                 if(logic == 1)
                 {
