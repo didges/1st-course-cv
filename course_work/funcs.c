@@ -132,24 +132,25 @@ int count_of_vowel(wchar_t* word)
     return counter;
 }
 
+int compar(const void *a, const void *b)
+{
+    wchar_t **aa = (wchar_t**)a;
+    wchar_t **bb = (wchar_t**)b;
+
+    if(count_of_vowel(*aa) > count_of_vowel(*bb))
+        return 1;
+    if(count_of_vowel(*aa) < count_of_vowel(*bb))
+        return -1;
+    else
+        return 0;
+}
+
 void thrd_func(text *my_text)
 {
     int vowel_1 = 0, vowel_2 = 0; 
     for(int sent = 0; sent <= my_text->count_of_sent; sent++)
     {
-        for(int i = 0; i <= my_text->arr_of_sent[sent]->count_of_words; i++)
-        {
-            for (int j = 0; j <= my_text->arr_of_sent[sent]->count_of_words - i - 1; j++)
-            {
-                if(count_of_vowel(my_text->arr_of_sent[sent]->arr_of_words[j]) > count_of_vowel(my_text->arr_of_sent[sent]->arr_of_words[j+1]))
-                {
-                    wchar_t *temp = my_text->arr_of_sent[sent]->arr_of_words[j];
-                    my_text->arr_of_sent[sent]->arr_of_words[j] = my_text->arr_of_sent[sent]->arr_of_words[j+1];
-                    my_text->arr_of_sent[sent]->arr_of_words[j+1] = temp;
-                }
-            }
-            
-        }
+        qsort(my_text->arr_of_sent[sent]->arr_of_words, my_text->arr_of_sent[sent]->count_of_words + 1, sizeof(wchar_t*), compar);
     }
 }
 
