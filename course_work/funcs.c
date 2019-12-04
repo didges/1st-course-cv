@@ -4,7 +4,8 @@ void deleter(text *my_text)
 {
     for(int main_sent = 0; main_sent <= my_text->count_of_sent; main_sent++)
     {
-        for(int sent = main_sent + 1; sent <= my_text->count_of_sent; sent++)
+        int sent = main_sent + 1;
+        while(sent <= my_text->count_of_sent)
         {
             int logic = 1;
             for(int word = 0; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
@@ -35,50 +36,63 @@ void deleter(text *my_text)
                 {
                     my_text->arr_of_sent[k] = my_text->arr_of_sent[k+1];
                 }     
-                sent--;
                 my_text->count_of_sent -= 1;
             }
+            else
+            {
+                sent++;
+            }
+            
         }
     }
 }
-
 
 void fst_func(text *my_text)
 {
     for(int sent = 0; sent <= my_text->count_of_sent; sent++)
     {
         int count = 0;
-        my_text->arr_of_sent[sent]->mask = calloc(my_text->arr_of_sent[sent]->max_len_word + 1, sizeof(wchar_t));
-        
-        for(int symb = 0; symb < my_text->arr_of_sent[sent]->max_len_word; symb++)
-        {
-            wchar_t temp;
-            for(int word = 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
-            {
-                if (my_text->arr_of_sent[sent]->arr_of_words[word][symb] == my_text->arr_of_sent[sent]->arr_of_words[word - 1][symb])
-                {
-                    temp = my_text->arr_of_sent[sent]->arr_of_words[word][symb];
-                }
-                else
-                {
-                    temp = '?';
-                    break;
-                }
-            }
-            my_text->arr_of_sent[sent]->mask[count++] = temp;       
-        }
+        my_text->arr_of_sent[sent]->mask = calloc(my_text->arr_of_sent[sent]->max_len_word+1, sizeof(wchar_t));
 
-        for (int i = wcslen(my_text->arr_of_sent[sent]->mask)-1; i > 0; i--)
+        if(my_text->arr_of_sent[sent]->count_of_words == 0)
         {
-            if(my_text->arr_of_sent[sent]->mask[i] == my_text->arr_of_sent[sent]->mask[i-1] && my_text->arr_of_sent[sent]->mask[i] == '?')
+            for(int i = 0; i <= wcslen(my_text->arr_of_sent[sent]->arr_of_words[0]); i++)
             {
-                my_text->arr_of_sent[sent]->mask[i] = '\0';
+                my_text->arr_of_sent[sent]->mask[i] = my_text->arr_of_sent[sent]->arr_of_words[0][i];
             }
-            else {break;}
         }
-        if (wcslen(my_text->arr_of_sent[sent]->mask) != my_text->arr_of_sent[sent]->max_len_word)
+        else
         {
-            my_text->arr_of_sent[sent]->mask[wcslen(my_text->arr_of_sent[sent]->mask)] = '*';
+            for(int symb = 0; symb <my_text->arr_of_sent[sent]->max_len_word; symb++)
+            {
+                wchar_t temp;
+                for(int word = 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+                {
+                    if (my_text->arr_of_sent[sent]->arr_of_words[word][symb] == my_text->arr_of_sent[sent]->arr_of_words[word - 1][symb])
+                    {
+                        temp = my_text->arr_of_sent[sent]->arr_of_words[word][symb];
+                    }
+                    else
+                    {
+                        temp = '?';
+                        break;
+                    }
+                }
+                my_text->arr_of_sent[sent]->mask[count++] = temp;       
+            }
+
+            for (int i = wcslen(my_text->arr_of_sent[sent]->mask)-1; i > 0; i--)
+            {
+                if(my_text->arr_of_sent[sent]->mask[i] == my_text->arr_of_sent[sent]->mask[i-1] && my_text->arr_of_sent[sent]->mask[i] == '?')
+                {
+                    my_text->arr_of_sent[sent]->mask[i] = '\0';
+                }
+                else {break;}
+            }
+            if (wcslen(my_text->arr_of_sent[sent]->mask) != my_text->arr_of_sent[sent]->max_len_word)
+            {
+                my_text->arr_of_sent[sent]->mask[wcslen(my_text->arr_of_sent[sent]->mask)] = '*';
+            }
         }
     }
 }
@@ -86,7 +100,8 @@ void fst_func(text *my_text)
 
 void scnd_func(text *my_text)
 {
-    for(int sent = 0; sent <= my_text->count_of_sent; sent++)
+    int sent = 0;
+    while(sent <= my_text->count_of_sent)
     {
         int logic = 1;
         for(int word = 0; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
@@ -108,9 +123,13 @@ void scnd_func(text *my_text)
             {
                 my_text->arr_of_sent[k] = my_text->arr_of_sent[k+1];
             }     
-            sent--;
             my_text->count_of_sent -= 1;
         }
+        else
+        {
+            sent++;
+        }
+        
     }
 }
 
@@ -156,26 +175,41 @@ void thrd_func(text *my_text)
 
 void fth_func(text *my_text)
 {
-    int total = 0;
-    int count_of_same = 0;
-    int logic;
-    for(int sent = 0; sent <= my_text->count_of_sent; sent++)
+    for (int sent = 0; sent <= my_text->count_of_sent; sent++)
     {
-        total = 0;
-        for(int main_word = 0; main_word <= my_text->arr_of_sent[sent]->count_of_words; main_word++)
+        int total = 0;
+        wchar_t **temp = malloc(my_text->arr_of_sent[sent]->size_of_snt * sizeof(wchar_t *));
+        int count_words = my_text->arr_of_sent[sent]->count_of_words;
+        for (int i = 0; i <= count_words; i++)
         {
-            count_of_same = 1;
-            for(int word = main_word + 1; word <= my_text->arr_of_sent[sent]->count_of_words; word++)
+            temp[i] = malloc((wcslen(my_text->arr_of_sent[sent]->arr_of_words[i])+1) * sizeof(wchar_t));
+            wcscpy(temp[i], my_text->arr_of_sent[sent]->arr_of_words[i]);
+        }
+        
+        for(int main_word = 0; main_word <= count_words; main_word++)
+        {
+            int count_of_same = 1;
+            int word = main_word + 1;
+            while(word <= count_words)
             {
-                logic = 1;
-                if(wcscmp(my_text->arr_of_sent[sent]->arr_of_words[main_word], my_text->arr_of_sent[sent]->arr_of_words[word]) != 0)
+                int logic = 1;
+
+                if(wcscmp(temp[main_word], temp[word]) != 0)
                 {
                     logic = 0;
+                    word++;
                 }
 
                 if(logic == 1)
                 {
                     count_of_same++;
+                    free(temp[word]);
+                    for (int i = word; i < count_words; i++)
+                    {
+                        temp[i] = temp[i+1];
+                    }
+                    
+                    count_words--;
                 }
             }
             if(count_of_same != 1)
@@ -184,6 +218,11 @@ void fth_func(text *my_text)
             }
         }
         my_text->arr_of_sent[sent]->same_words = total;
+        for(int i = 0; i <= count_words; i++)
+        {
+            free(temp[i]);
+        }free(temp);
         
     }
+    
 }

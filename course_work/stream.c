@@ -2,7 +2,6 @@
 
 void read_text(text *my_text)
 {
-    FILE *f = fopen("test.txt", "r");
     my_text->size_of_txt = 20;
     my_text->arr_of_sent = malloc(my_text->size_of_txt * sizeof(sentence*));
     my_text->count_of_sent = 0;
@@ -10,7 +9,7 @@ void read_text(text *my_text)
     int logic = 1;
     while(current_symb != '\n')
     {
-        current_symb = fgetwc(f);
+        current_symb = fgetwc(stdin);
         if(logic)
         {
             if(my_text->size_of_txt == my_text->count_of_sent)
@@ -34,6 +33,8 @@ void read_text(text *my_text)
         
         if(current_symb == '.')
         {
+            if(my_text->arr_of_sent[my_text->count_of_sent]->max_len_word < my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb)
+                {my_text->arr_of_sent[my_text->count_of_sent]->max_len_word = my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb;}
             my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = current_symb;
             logic = 1;
             my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb + 1] = '\0';
@@ -75,10 +76,12 @@ void read_text(text *my_text)
         }
         my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[my_text->arr_of_sent[my_text->count_of_sent]->count_of_words][my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb] = current_symb;
         my_text->arr_of_sent[my_text->count_of_sent]->count_of_symb += 1;
+    }
+    free(my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words[0]);
+    free(my_text->arr_of_sent[my_text->count_of_sent]->arr_of_words);
+    free(my_text->arr_of_sent[my_text->count_of_sent]);
+    my_text->count_of_sent -= 1;
 
-    } my_text->count_of_sent -= 1;
-
-    fclose(f);    
 }
 
 
