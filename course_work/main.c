@@ -27,25 +27,25 @@ int main(){
             break;
         
         case 1:
-            fst_func(&my_text);
-            printer_for_fst(&my_text);
-            for (int i = 0; i <= my_text.count_of_sent; i++)
+            sample_string(&my_text);
+            printer_sample_string(&my_text);
+            for(int i = 0; i <= my_text.count_of_sent; i++)
             {
                 free(my_text.arr_of_sent[i]->mask);
             }
             break;
         
         case 2:
-            scnd_func(&my_text);
+            deleter_sent(&my_text);
             break;
 
         case 3:
-            thrd_func(&my_text);
+            sort_by_vowel(&my_text);
             break;
 
         case 4:
-            fth_func(&my_text);
-            printer_for_fth(&my_text);
+            count_of_same(&my_text);
+            printer_count_of_same(&my_text);
             break;
         
         default:

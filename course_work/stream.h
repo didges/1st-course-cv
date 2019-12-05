@@ -5,6 +5,6 @@ void read_text(text *my_text);
 
 void printer(text *my_text);
 
-void printer_for_fst(text *my_text);
+void printer_sample_string(text *my_text);
 
-void printer_for_fth(text *my_text);
+void printer_count_of_same(text *my_text);
